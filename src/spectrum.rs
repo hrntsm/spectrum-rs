@@ -20,7 +20,6 @@ pub fn calc(acceleration: Vec<f32>, dt: f32, h: f32) -> Vec<Vec<f32>> {
     }
 
     let mut i = 0 as f32;
-
     while i <= t_total / dt_total {
         let mut acc1 = 0 as f32;
         let mut vel1 = 0 as f32;
@@ -37,8 +36,7 @@ pub fn calc(acceleration: Vec<f32>, dt: f32, h: f32) -> Vec<Vec<f32>> {
         let k = 4.0 * std::f32::consts::PI.powi(2) * mass / t.powi(2);
         let c = 2.0 * h * (k * mass).sqrt();
 
-        let mut j = 0;
-        while j < acc0.len() {
+        for j in 0..acc0.len() - 1 {
             let acc2 = (force[j]
                 - c * (vel1 + 0.5 * dt * acc1)
                 - k * (dis1 + dt * vel1 + (0.5 - beta) * dt * dt * acc1))
@@ -53,17 +51,12 @@ pub fn calc(acceleration: Vec<f32>, dt: f32, h: f32) -> Vec<Vec<f32>> {
             acc1 = acc2;
             vel1 = vel2;
             dis1 = dis2;
-
-            j += 1;
         }
 
-        j = 0;
-        while j < acc.len() {
+        for j in 0..acc.len() - 1 {
             max_acc = max_acc.max(acc[j].abs());
             max_vel = max_vel.max(vel[j].abs());
             max_dis = max_dis.max(dis[j].abs());
-
-            j += 1;
         }
 
         period.push(t);

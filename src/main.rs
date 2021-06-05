@@ -17,6 +17,24 @@ fn read_file(file_name: String) -> Vec<f32> {
     data
 }
 
+fn write_file(file_name: String, data: Vec<Vec<f32>>) {
+    let path = Path::new(&file_name);
+    let mut file = match File::create(path) {
+        Ok(file) => file,
+        Err(why) => panic!("couldn't create file."),
+    };
+
+    for i in 0..data[0].len() {
+        let period = data[0][i].to_string();
+        let acc = data[1][i].to_string();
+        let vel = data[2][i].to_string();
+        let dis = data[3][i].to_string();
+        let line = format!("{} {} {} {}\n", period, acc, vel, dis);
+
+        file.write_all(line.as_bytes());
+    }
+}
+
 fn main() {
     let h = 0.05;
     let dt = 0.02;
@@ -26,19 +44,5 @@ fn main() {
     let acceleration = read_file(input_file);
     let result = spectrum::calc(acceleration, dt, h);
 
-    let path = Path::new(&output_file);
-    let mut file = match File::create(path) {
-        Ok(file) => file,
-        Err(why) => panic!("couldn't create file."),
-    };
-
-    for i in 0..result[0].len() {
-        let period = result[0][i].to_string();
-        let acc = result[1][i].to_string();
-        let vel = result[2][i].to_string();
-        let dis = result[3][i].to_string();
-        let line = format!( "{} {} {} {}\n", period, acc, vel, dis);
-
-        file.write_all( line.as_bytes());
-    }
+    write_file(output_file, result);
 }
