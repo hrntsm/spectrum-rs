@@ -1,10 +1,25 @@
 mod spectrum;
 
 use std::fs::File;
-use std::io::BufRead;
-use std::io::BufReader;
-use std::io::Write;
+use std::io::{BufRead, BufReader, Write};
 use std::path::Path;
+use structopt::StructOpt;
+
+#[derive(Debug, StructOpt)]
+#[structopt(about = "Calculate the response spectrum for the input waveform.")]
+struct Settings {
+    #[structopt(short = "h", help = "damping ratio")]
+    pub h: Option<f32>,
+
+    #[structopt(short = "dt", help = "Input file time increment")]
+    pub dt: Option<f32>,
+
+    #[structopt(short = "i", help = "input file path")]
+    pub input: Option<String>,
+
+    #[structopt(short = "o", help = "output file path")]
+    pub output: Option<String>,
+}
 
 fn read_file(file_name: String) -> Vec<f32> {
     let mut data = Vec::new();
@@ -21,7 +36,7 @@ fn write_file(file_name: String, data: Vec<Vec<f32>>) {
     let path = Path::new(&file_name);
     let mut file = match File::create(path) {
         Ok(file) => file,
-        Err(why) => panic!("couldn't create file."),
+        Err(_) => panic!("couldn't create file."),
     };
 
     for i in 1..data[0].len() {
@@ -31,15 +46,22 @@ fn write_file(file_name: String, data: Vec<Vec<f32>>) {
         let dis = data[3][i].to_string();
         let line = format!("{} {} {} {}\n", period, acc, vel, dis);
 
-        file.write_all(line.as_bytes());
+        file.write_all(line.as_bytes()).unwrap();
     }
 }
 
 fn main() {
-    let h = 0.05;
-    let dt = 0.02;
-    let input_file = String::from("./input.txt");
-    let output_file = String::from("./result.txt");
+    let settings = Settings::from_args();
+    let h = settings.h.unwrap_or(0.05);
+    let dt = settings.dt.unwrap_or(0.02);
+    let input_file = match settings.input {
+        Some(i) => i,
+        None => String::from("./input.txt"),
+    };
+    let output_file = match settings.output {
+        Some(o) => o,
+        None => String::from("./result.txt"),
+    };
 
     let acceleration = read_file(input_file);
     let result = spectrum::calc(acceleration, dt, h);
