@@ -38,7 +38,7 @@ fn write_file(file_name: String, data: Vec<Vec<f32>>) {
 fn main() {
     let h = 0.05;
     let dt = 0.02;
-    let input_file = String::from("./test.txt");
+    let input_file = String::from("./input.txt");
     let output_file = String::from("./result.txt");
 
     let acceleration = read_file(input_file);
