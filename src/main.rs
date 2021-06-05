@@ -3,8 +3,8 @@ mod spectrum;
 use std::fs::File;
 use std::io::BufRead;
 use std::io::BufReader;
-use std::io::BufWriter;
 use std::io::Write;
+use std::path::Path;
 
 fn read_file(file_name: String) -> Vec<f32> {
     let mut data = Vec::new();
@@ -26,9 +26,19 @@ fn main() {
     let acceleration = read_file(input_file);
     let result = spectrum::calc(acceleration, dt, h);
 
-    let mut writer = BufWriter::new(File::create(output_file)?);
-    for r in result {
-        let byte = result?;
-        writer.write_all(&[byte])?;
+    let path = Path::new(&output_file);
+    let mut file = match File::create(path) {
+        Ok(file) => file,
+        Err(why) => panic!("couldn't create file."),
+    };
+
+    for i in 0..result[0].len() {
+        let period = result[0][i].to_string();
+        let acc = result[1][i].to_string();
+        let vel = result[2][i].to_string();
+        let dis = result[3][i].to_string();
+        let line = format!( "{} {} {} {}\n", period, acc, vel, dis);
+
+        file.write_all( line.as_bytes());
     }
 }
