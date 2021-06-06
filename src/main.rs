@@ -77,7 +77,7 @@ mod tests {
     fn spectrum_result() {
         let h = 0.05;
         let dt = 0.02;
-        let input_file = String::from("./test.txt");
+        let input_file = String::from("./input.txt");
 
         let acceleration = read_file(input_file);
         let result = spectrum::calc(acceleration, dt, h);
